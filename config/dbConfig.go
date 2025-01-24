@@ -2,7 +2,6 @@ package config
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -18,10 +17,6 @@ func InitDB() error {
 	dbhost := os.Getenv("DB_HOST")
 
 	connectionString := "user=" + dbuser + " password=" + dbpass + " dbname=" + dbname + " sslmode=disable host=" + dbhost + " port=5432"
-
-	fmt.Print(connectionString)
-
-	// connectionString := "user=postgres password=nice1234 dbname=swiftpick sslmode=disable host=localhost port=5432"
 
 	var err error
 	DB, err = sql.Open("postgres", connectionString)
