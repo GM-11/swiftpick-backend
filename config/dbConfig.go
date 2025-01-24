@@ -9,13 +9,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type User struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 var DB *sql.DB
 
 func InitDB() error {

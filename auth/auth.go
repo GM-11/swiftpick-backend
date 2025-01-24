@@ -15,7 +15,7 @@ func checkIfUserExists(email string) (bool, error) {
 	defer stmt.Close()
 
 	var user config.User
-	err = stmt.QueryRow(email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	err = stmt.QueryRow(email).Scan(&user.Name, &user.Email, &user.Password)
 	if err != nil {
 		return false, err
 	}
@@ -36,20 +36,25 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stmt, err := config.DB.Prepare("INSERT INTO users (id, name, email, password) VALUES ($1, $2, $3, $4);")
+	stmt, err := config.DB.Prepare("INSERT INTO users (name, email, password) VALUES ($1, $2, $3);")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user.ID, user.Name, user.Email, user.Password)
+	_, err = stmt.Exec(user.Name, user.Email, user.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Write([]byte("User created successfully"))
+	userJson, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(userJson)
 }
 
 func LoginUser(email string, password string) {
