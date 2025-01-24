@@ -57,6 +57,35 @@ func SignUpUser(w http.ResponseWriter, r *http.Request) {
 	w.Write(userJson)
 }
 
-func LoginUser(email string, password string) {
+func LoginUser(w http.ResponseWriter, r *http.Request) {
+
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+
+	stmt, err := config.DB.Prepare("SELECT * FROM users WHERE email = $1;")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer stmt.Close()
+
+	var user config.User
+	err = stmt.QueryRow(email).Scan(&user.Name, &user.Email, &user.Password)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusBadRequest)
+		return
+	}
+
+	if user.Password != password {
+		http.Error(w, "Incorrect password", http.StatusBadRequest)
+		return
+	}
+
+	userJson, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(userJson)
 
 }
